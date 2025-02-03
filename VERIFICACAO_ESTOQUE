@@ -1,1 +1,117 @@
+Private Sub RODAR_Click()
+    
+    Dim DATA_FINAL As Date
+    Dim DIFERENCA As Integer
+    Dim I As Integer
+    Dim CONTA_CONTABIL  As String
+    Dim LINHA As Integer
+    Dim LINHA_DETALHADO As Integer
+    Dim CORREDOR As Integer
+    
+    LINHA = 2
+    
+    While Sheets("LOG").Range("A" & LINHA).Value <> ""
+    
+        LINHA = LINHA + 1
+    
+    Wend
+    
+    
+    
+    LINHA_DETALHADO = 2
+    
+    While Sheets("LOG_DETALHADO").Range("A" & LINHA_DETALHADO).Value <> ""
+    
+        LINHA_DETALHADO = LINHA_DETALHADO + 1
+    
+    Wend
+    
+    
+    
+    ' Converte o valor do TextBox para data
+    DATA_FINAL = CDate(TB_DATA.Text)
 
+    ' Calcula a diferença de dias em relação a 01/01/2025
+    DIFERENCA = DATA_FINAL - CDate("31/12/2024")
+    
+    PROGRESSO.Max = DIFERENCA
+    
+    ' Loop corrigido
+    For I = 1 To DIFERENCA
+    
+        Sheets("PROCESSAMENTO").Range("C1").Value = I
+        
+        'Checa se na data há diferenças
+        If Sheets("PROCESSAMENTO").Range("E3").Value <> 0 Then
+                
+            For CONTADOR = 5 To 26
+                
+                If Sheets("PROCESSAMENTO").Range("E" & CONTADOR).Value <> 0 Then
+                            
+                    CONTA_CONTABIL = Sheets("PROCESSAMENTO").Range("A" & CONTADOR).Value
+                    Sheets("PROCESSAMENTO").Range("G2").Value = CONTA_CONTABIL
+                    
+                    For J = 5 To 13
+                        
+                          If Sheets("PROCESSAMENTO").Range("N" & J).Value <> 0 Then
+                          
+                            'Registra no LOG geral
+                            Sheets("LOG").Range("A" & LINHA, "H" & LINHA).Value = Sheets("PROCESSAMENTO").Range("G" & J, "N" & J).Value
+                            
+                            'Faz o filtro
+                            CORREDOR = 5
+                            
+                            'Percorre
+                            Sheets("FILTRAGEM").Range("B1").Value = Sheets("PROCESSAMENTO").Range("H" & J).Value 'Data
+                            Sheets("FILTRAGEM").Range("B2").Value = Sheets("PROCESSAMENTO").Range("I" & J).Value 'Conta contabil
+                            Sheets("FILTRAGEM").Range("B3").Value = Sheets("PROCESSAMENTO").Range("K" & J).Value 'Documento
+                            
+                            
+                            While Sheets("FILTRAGEM").Range("A" & CORREDOR).Value <> ""
+                                    
+                                If Sheets("FILTRAGEM").Range("W" & CORREDOR).Value <> 0 Then
+                                    
+                                    Sheets("LOG_DETALHADO").Range("A" & LINHA_DETALHADO, "W" & LINHA_DETALHADO).Value = Sheets("FILTRAGEM").Range("A" & CORREDOR, "W" & CORREDOR).Value
+                                    Sheets("LOG_DETALHADO").Range("X" & LINHA_DETALHADO).Value = Date
+                                    
+                                    LINHA_DETALHADO = LINHA_DETALHADO + 1
+                                    
+                                End If
+                                
+                                CORREDOR = CORREDOR + 1
+                            
+                            Wend
+                            
+                            
+                            
+                            
+                            LINHA = LINHA + 1
+                          
+                          End If
+                        
+                    
+                    Next J
+                    
+                    
+                    
+                End If
+            
+            
+            Next CONTADOR
+            
+        
+        End If
+        
+        
+        PROGRESSO.Value = I
+        
+    Next I
+
+    
+    
+    
+
+End Sub
+Private Sub UserForm_Initialize()
+    TB_DATA.Text = Date - 1
+End Sub
